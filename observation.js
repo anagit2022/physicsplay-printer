@@ -14,52 +14,62 @@ function createObservationCard(){
     card.dataset.id = cardCount;
 
     card.innerHTML = `
-        <div class="obs-video-wrap">
-            <video class="obs-video" autoplay muted playsinline></video>
-            <button class="record-btn" title="Start/stop recording"></button>
-            <div class="record-timer" style="display:none;">00:00</div>
-        </div>
-
-        <div class="obs-field">
-            <label>Case</label>
-            <input type="text" class="case-input" placeholder="e.g. Swaying of flower stem (Resonance)">
-        </div>
-
-        <table class="obs-table">
-            <tbody>
-                <tr>
-                    <th>Length of stem :</th>
-                    <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                </tr>
-                <tr>
-                    <th>Flower size :</th>
-                    <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                </tr>
-                <tr>
-                    <th>Head weight :</th>
-                    <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                </tr>
-                <tr>
-                    <th>Y distance pushed :</th>
-                    <td><input type="text" class="amp-fill"></td><td><input type="text"></td><td><input type="text"></td>
-                </tr>
-                <tr>
-                    <th>Speed of motion :</th>
-                    <td><input type="text" class="speed-fill"></td><td><input type="text"></td><td><input type="text"></td>
-                </tr>
-            </tbody>
-        </table>
-        <button type="button" class="fill-btn">Fill from current sliders</button>
-
-        <div class="obs-field">
-            <label>Insight</label>
-            <div class="insight-wrap">
-                <textarea class="insight-input" rows="3" placeholder="What did you notice?"></textarea>
-                <button type="button" class="help-btn">Help</button>
+        <div class="obs-card-header">
+            <span class="obs-card-title">New observation</span>
+            <div class="obs-card-actions">
+                <button type="button" class="delete-btn" title="Delete card">&#128465;</button>
+                <button type="button" class="toggle-btn" title="Expand/collapse">&#8964;</button>
             </div>
         </div>
 
-        <button type="button" class="save-obs-btn">Save observation</button>
+        <div class="obs-card-body">
+            <div class="obs-video-wrap">
+                <video class="obs-video" autoplay muted playsinline></video>
+                <button class="record-btn" title="Start/stop recording"></button>
+                <div class="record-timer" style="display:none;">00:00</div>
+            </div>
+
+            <div class="obs-field">
+                <label>Case</label>
+                <input type="text" class="case-input" placeholder="e.g. Swaying of flower stem (Resonance)">
+            </div>
+
+            <table class="obs-table">
+                <tbody>
+                    <tr>
+                        <th>Length of stem :</th>
+                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
+                    </tr>
+                    <tr>
+                        <th>Flower size :</th>
+                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
+                    </tr>
+                    <tr>
+                        <th>Head weight :</th>
+                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
+                    </tr>
+                    <tr>
+                        <th>Y distance pushed :</th>
+                        <td><input type="text" class="amp-fill"></td><td><input type="text"></td><td><input type="text"></td>
+                    </tr>
+                    <tr>
+                        <th>Speed of motion :</th>
+                        <td><input type="text" class="speed-fill"></td><td><input type="text"></td><td><input type="text"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="fill-btn">Fill from current sliders</button>
+
+            <div class="obs-field">
+                <label>Insight</label>
+                <div class="insight-wrap">
+                    <textarea class="insight-input" rows="3" placeholder="What did you notice?"></textarea>
+                    <button type="button" class="help-btn">Help</button>
+                </div>
+            </div>
+
+            <button type="button" class="save-obs-btn">Save observation</button>
+        </div>
     `;
 
     cardsContainer.appendChild(card);
@@ -71,6 +81,11 @@ function setupCard(card){
     const videoWrap = card.querySelector(".obs-video-wrap");
     const recordBtn = card.querySelector(".record-btn");
     const timerEl = card.querySelector(".record-timer");
+    const titleEl = card.querySelector(".obs-card-title");
+    const caseInput = card.querySelector(".case-input");
+    const toggleBtn = card.querySelector(".toggle-btn");
+    const deleteBtn = card.querySelector(".delete-btn");
+    const header = card.querySelector(".obs-card-header");
 
     let stream = null;
     let mediaRecorder = null;
@@ -79,6 +94,40 @@ function setupCard(card){
     let timerInterval = null;
     let seconds = 0;
     let recordedUrl = null;
+
+    // ---- collapse / expand ----
+    function setCollapsed(collapsed){
+        card.classList.toggle("collapsed", collapsed);
+    }
+    header.addEventListener("click", (e) => {
+        if(e.target.closest(".delete-btn")) return;
+        setCollapsed(!card.classList.contains("collapsed"));
+    });
+    toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setCollapsed(!card.classList.contains("collapsed"));
+    });
+
+    // ---- keep the collapsed-row title in sync with the Case field ----
+    caseInput.addEventListener("input", () => {
+        titleEl.textContent = caseInput.value.trim() || "New observation";
+    });
+
+    // ---- delete this card ----
+    deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(recording && mediaRecorder){
+            mediaRecorder.stop();
+        }
+        if(stream){
+            stream.getTracks().forEach(t => t.stop());
+        }
+        if(recordedUrl){
+            URL.revokeObjectURL(recordedUrl);
+        }
+        clearInterval(timerInterval);
+        card.remove();
+    });
 
     // ---- open the camera as soon as the card is created ----
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
@@ -151,7 +200,7 @@ function setupCard(card){
         alert("Try describing: what changed when you adjusted amplitude or speed, whether the motion looked steady or grew larger over time, and why you think that happened.");
     });
 
-    // ---- save: lock the card, offer the recording for download ----
+    // ---- save: lock the card, collapse it, offer the recording for download ----
     card.querySelector(".save-obs-btn").addEventListener("click", () => {
         card.querySelectorAll("input, textarea").forEach(el => el.setAttribute("readonly", true));
 
@@ -175,7 +224,9 @@ function setupCard(card){
             dl.download = `observation_${card.dataset.id}.webm`;
             dl.textContent = "Download video";
             dl.className = "download-link";
-            card.appendChild(dl);
+            card.querySelector(".obs-card-body").appendChild(dl);
         }
+
+        setCollapsed(true);
     });
 }
