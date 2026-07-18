@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Physics Playground</title>
+</head>
+<body>
+
+    <header class="topbar">Physics playground</header>
+
+    <div class="grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="col left-col">
+
+            <div class="panel">
+                <h2>Connect printer</h2>
+                <button id="connectButton" class="outline-btn">Connect</button>
+                <div id="connectStatus" class="status">Not connected</div>
+            </div>
+
+            <div class="panel">
+                <h2>Setup</h2>
+                <textarea id="setupInput" class="code-box" rows="2">G91</textarea>
+                <div class="hint">Sent once, before the experiment starts</div>
+            </div>
+
+            <div class="panel">
+                <h2>Motion</h2>
+                <textarea id="motionInput" class="code-box" rows="4">G0 Y{A} F{F}
+G0 Y-{A} F{F}</textarea>
+                <div class="hint">Edit freely — change the axis letter directly (e.g. Y → X). <code>{A}</code> is amplitude, <code>{F}</code> is speed, both filled in live. The label above updates to match automatically.</div>
+                <div id="motionPreview" class="code-box motion-preview"></div>
+                <div class="hint">Preview: what's actually sent right now</div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col right-col">
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Amplitude</h2>
+                    <div class="value-box">
+                        <input id="ampAxis" class="axis-input" type="text" value="Y" maxlength="2" readonly>
+                        <input id="ampValue" type="number" value="5" min="0" max="50" step="1">
+                    </div>
+                </div>
+                <div class="hint">By how much dist is the Y bed pushed?</div>
+                <input id="ampSlider" type="range" min="0" max="50" step="1" value="5" class="slider">
+                <div class="slider-buttons">
+                    <button class="step-btn" data-target="amp" data-dir="-1">&minus;</button>
+                    <button class="step-btn" data-target="amp" data-dir="1">+</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Speed</h2>
+                    <div class="value-box">
+                        <span class="value-label">F</span>
+                        <input id="speedValue" type="number" value="3000" min="100" max="6000" step="100">
+                    </div>
+                </div>
+                <div class="hint">How fast is the Y position changed?</div>
+                <input id="speedSlider" type="range" min="100" max="6000" step="100" value="3000" class="slider">
+                <div class="slider-buttons">
+                    <button class="step-btn" data-target="speed" data-dir="-1">&minus;</button>
+                    <button class="step-btn" data-target="speed" data-dir="1">+</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Frequency</h2>
+                    <div class="value-box">
+                        <span class="value-label">Repeat</span>
+                        <input id="repeatValue" type="number" value="5" min="1" max="100" step="1">
+                    </div>
+                </div>
+                <div class="hint">How many times to repeat the motion</div>
+                <input id="repeatSlider" type="range" min="1" max="100" step="1" value="5" class="slider">
+                <div class="slider-buttons">
+                    <button class="step-btn" data-target="repeat" data-dir="-1">&minus;</button>
+                    <button class="step-btn" data-target="repeat" data-dir="1">+</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="play-row">
+        <button id="playButton" class="play-btn">Play experiment</button>
+        <button id="stopButton" class="stop-btn">Stop</button>
+    </div>
+
+    <div class="panel console-panel">
+        <h2>Command History</h2>
+        <div id="console"></div>
+    </div>
+
+    <div class="obs-section">
+        <div class="obs-header">
+            <h2>Observation cards</h2>
+            <button id="addCardButton" class="add-card-btn" title="Add new card">+</button>
+        </div>
+        <div id="cardsContainer"></div>
+    </div>
+
+    <script src="sketch.js"></script>
+    <script src="observation.js"></script>
+</body>
+</html>
