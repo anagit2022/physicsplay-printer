@@ -71,28 +71,13 @@ body {
     overflow: hidden;
 }
 
-.value-label,
-.axis-input {
+.value-label {
     background: #fff;
-    border: none;
     border-right: 1px solid #333;
     padding: 8px 12px;
     font-weight: 700;
     display: flex;
     align-items: center;
-    width: 24px;
-    text-align: center;
-    font-family: inherit;
-    font-size: 16px;
-}
-
-.axis-input:focus {
-    outline: 2px solid #3ba9e0;
-}
-
-.axis-input[readonly] {
-    background: #f4f4f4;
-    color: #444;
 }
 
 .value-box input {
