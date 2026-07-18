@@ -255,9 +255,8 @@ body {
 
 /* ---------------- Observation cards ---------------- */
 
-.obs-section {
-    max-width: 560px;
-    margin: 0 30px 60px 30px;
+.obs-col {
+    width: 420px;
 }
 
 .obs-header {
@@ -290,13 +289,77 @@ body {
     opacity: 0.8;
 }
 
-.obs-card {
-    background: #fff;
+#cardsContainer {
     border: 1px solid #ddd;
     border-top: none;
     border-radius: 0 0 14px 14px;
-    padding: 24px;
-    margin-bottom: 24px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.obs-card {
+    border-bottom: 1px solid #eee;
+}
+
+.obs-card:last-child {
+    border-bottom: none;
+}
+
+.obs-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+}
+
+.obs-card-title {
+    font-size: 16px;
+    color: #111;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.obs-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.delete-btn,
+.toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+    padding: 2px;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    color: #d33;
+}
+
+.toggle-btn {
+    transition: transform 0.15s ease;
+    display: inline-block;
+}
+
+.obs-card:not(.collapsed) .toggle-btn {
+    transform: rotate(180deg);
+}
+
+.obs-card-body {
+    padding: 4px 20px 24px 20px;
+}
+
+.obs-card.collapsed .obs-card-body {
+    display: none;
 }
 
 .obs-card.saved {
