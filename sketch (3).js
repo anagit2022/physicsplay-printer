@@ -55,33 +55,20 @@ function getValues(){
     };
 }
 
-// reads the Motion textarea and fills in {A} / {F} with the current
-// amplitude and speed values
+// reads the Motion textarea and fills in {Y} / {F} with the current slider values
 function buildMotionLines(){
     const template = document.getElementById("motionInput").value.split("\n");
     const { amp, speed } = getValues();
     return template
         .map(line => line.trim())
         .filter(line => line !== "")
-        .map(line => line
-            .replaceAll("{A}", amp)
-            .replaceAll("{F}", speed));
-}
-
-// figures out the axis letter by looking at whatever comes right before
-// the first {A} in the template, e.g. "G0 X{A}" -> "X"
-function updateAxisLabel(){
-    const template = document.getElementById("motionInput").value;
-    const match = template.match(/([A-Za-z])\{A\}/);
-    document.getElementById("ampAxis").value = match ? match[1].toUpperCase() : "?";
+        .map(line => line.replaceAll("{Y}", amp).replaceAll("{F}", speed));
 }
 
 function updateMotionPreview(){
-    updateAxisLabel();
     motionPreview.textContent = buildMotionLines().join("\n");
 }
 document.getElementById("motionInput").addEventListener("input", updateMotionPreview);
-
 updateMotionPreview();
 
 // ---------------- WebSerial ----------------
