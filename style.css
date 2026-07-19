@@ -465,20 +465,20 @@ body {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 10px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
-.obs-table th {
+.obs-thead-row th {
     text-align: left;
-    font-weight: 700;
-    font-size: 15px;
-    padding-right: 10px;
-    white-space: nowrap;
-    width: 40%;
+    font-size: 12px;
+    color: #777;
+    font-weight: 600;
+    padding: 0 8px 4px 0;
 }
 
 .obs-table td {
     padding-right: 8px;
+    vertical-align: middle;
 }
 
 .obs-table input {
@@ -489,6 +489,51 @@ body {
     padding: 8px;
     font-family: inherit;
     font-size: 15px;
+}
+
+.param-label {
+    font-weight: 700;
+    min-width: 120px;
+}
+
+.remove-row-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+}
+
+.remove-row-btn:hover {
+    color: #d33;
+}
+
+.obs-table-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.add-row-btn,
+.add-col-btn,
+.remove-col-btn {
+    background: #fff;
+    border: 1px solid #333;
+    color: #111;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-row-btn:hover,
+.add-col-btn:hover,
+.remove-col-btn:hover {
+    background: #f0f0f0;
 }
 
 .fill-btn {
