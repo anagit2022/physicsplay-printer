@@ -43,29 +43,16 @@ function createObservationCard(){
             </div>
 
             <table class="obs-table">
-                <tbody>
-                    <tr>
-                        <th>Length of stem :</th>
-                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <th>Flower size :</th>
-                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <th>Head weight :</th>
-                        <td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <th>Y distance pushed :</th>
-                        <td><input type="text" class="amp-fill"></td><td><input type="text"></td><td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <th>Speed of motion :</th>
-                        <td><input type="text" class="speed-fill"></td><td><input type="text"></td><td><input type="text"></td>
-                    </tr>
-                </tbody>
+                <thead>
+                    <tr class="obs-thead-row"><th></th><th></th></tr>
+                </thead>
+                <tbody></tbody>
             </table>
+            <div class="obs-table-controls">
+                <button type="button" class="add-row-btn">+ Parameter</button>
+                <button type="button" class="add-col-btn">+ Trial</button>
+                <button type="button" class="remove-col-btn">&minus; Trial</button>
+            </div>
             <button type="button" class="fill-btn">Fill from current sliders</button>
 
             <div class="obs-field">
@@ -102,6 +89,12 @@ function setupCard(card){
     let timerInterval = null;
     let seconds = 0;
     let recordedUrl = null;
+
+    // ---- build the default parameter table (rows/columns are editable from here on) ----
+    initializeTable(card);
+    card.querySelector(".add-row-btn").addEventListener("click", () => addRow(card));
+    card.querySelector(".add-col-btn").addEventListener("click", () => addColumn(card));
+    card.querySelector(".remove-col-btn").addEventListener("click", () => removeColumn(card));
 
     // ---- collapse / expand ----
     function setCollapsed(collapsed){
@@ -239,14 +232,102 @@ function setupCard(card){
     });
 }
 
-// ---- gathers a card's Case, measurements, and existing notes ----
+// ---- sets up the default parameters/columns for a fresh card ----
+function initializeTable(card){
+    card.dataset.columns = "0";
+    card.querySelector(".obs-thead-row").innerHTML = "<th></th><th></th>";
+    card.querySelector(".obs-table tbody").innerHTML = "";
+
+    for(let i = 0; i < 3; i++) addColumn(card);
+
+    addRow(card, "Length of stem");
+    addRow(card, "Flower size");
+    addRow(card, "Head weight");
+    addRow(card, "Y distance pushed", "amp-fill");
+    addRow(card, "Speed of motion", "speed-fill");
+}
+
+// ---- adds one parameter row; fillClass (optional) marks its first cell so
+// "Fill from current sliders" can find it ----
+function addRow(card, label = "New parameter", fillClass = null){
+    const tbody = card.querySelector(".obs-table tbody");
+    const columnCount = Number(card.dataset.columns);
+    const tr = document.createElement("tr");
+
+    const labelTd = document.createElement("td");
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "param-label";
+    labelInput.value = label;
+    labelTd.appendChild(labelInput);
+    tr.appendChild(labelTd);
+
+    for(let i = 0; i < columnCount; i++){
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "text";
+        if(i === 0 && fillClass) input.classList.add(fillClass);
+        td.appendChild(input);
+        tr.appendChild(td);
+    }
+
+    const actionTd = document.createElement("td");
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "remove-row-btn";
+    removeBtn.title = "Remove this parameter";
+    removeBtn.innerHTML = "&times;";
+    removeBtn.addEventListener("click", () => tr.remove());
+    actionTd.appendChild(removeBtn);
+    tr.appendChild(actionTd);
+
+    tbody.appendChild(tr);
+}
+
+// ---- adds one trial column across the header and every existing row ----
+function addColumn(card){
+    const columnCount = Number(card.dataset.columns) + 1;
+    card.dataset.columns = columnCount;
+
+    const headRow = card.querySelector(".obs-thead-row");
+    const th = document.createElement("th");
+    th.textContent = `Trial ${columnCount}`;
+    headRow.insertBefore(th, headRow.lastElementChild);
+
+    card.querySelectorAll(".obs-table tbody tr").forEach(tr => {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "text";
+        td.appendChild(input);
+        tr.insertBefore(td, tr.lastElementChild);
+    });
+}
+
+// ---- removes the last trial column (keeps at least one) ----
+function removeColumn(card){
+    let columnCount = Number(card.dataset.columns);
+    if(columnCount <= 1) return;
+    columnCount -= 1;
+    card.dataset.columns = columnCount;
+
+    const ths = card.querySelectorAll(".obs-thead-row th");
+    const lastTrialTh = ths[ths.length - 2];
+    if(lastTrialTh) lastTrialTh.remove();
+
+    card.querySelectorAll(".obs-table tbody tr").forEach(tr => {
+        const tds = tr.querySelectorAll("td");
+        const lastValueTd = tds[tds.length - 2];
+        if(lastValueTd) lastValueTd.remove();
+    });
+}
 function collectCardData(card){
     const caseText = card.querySelector(".case-input").value.trim() || "Untitled experiment";
 
     const measurementLines = [];
-    card.querySelectorAll(".obs-table tr").forEach(row => {
-        const label = row.querySelector("th").textContent.replace(":", "").trim();
+    card.querySelectorAll(".obs-table tbody tr").forEach(row => {
+        const label = row.querySelector(".param-label").value.trim() || "Parameter";
         const values = Array.from(row.querySelectorAll("input"))
+            .filter(inp => !inp.classList.contains("param-label"))
             .map(i => i.value.trim())
             .filter(v => v !== "");
         if(values.length > 0){
